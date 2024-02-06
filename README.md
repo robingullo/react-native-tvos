@@ -1,3 +1,107 @@
+# Custom react-native-tvos fork for native patches
+
+This is a fork of react-native-tvos that allows the IPTV team to build their own native Android patches. Since Android code is prebuilt, it cannot patched with `yarn patch` in node_modules, it needs to be built from source in this repo. This is generally not recommended by React Native, but it might be necessary to deliver unsupported features in time, or to maintain an older version if upgrading is not an option.
+
+⚠ You only need this if you need to patch Android native code
+If you need to patch JS or iOS, use `yarn patch` instead.
+
+**Current version is on branch `tvos-v0.72.6-1-patch`**
+
+## How to develop a patch directly your app
+
+References:
+
+https://reactnative.dev/contributing/how-to-build-from-source
+
+https://github.com/react-native-tvos/react-native-tvos/issues/574 (v0.72.x)
+
+In `android/settings.gradle`, add these lines:
+
+```groovy
+includeBuild('../node_modules/react-native') {
+    dependencySubstitution {
+        // Matches custom react-native-tvos dependency in app/build.gradle
+        substitute(module("io.github.react-native-tvos:react-android")).using(project(":packages:react-native:ReactAndroid"))
+        substitute(module("com.facebook.react:react-native")).using(project(":packages:react-native:ReactAndroid"))
+        // Matches custom react-native-tvos dependency in app/build.gradle
+        substitute(module("io.github.react-native-tvos:hermes-android")).using(project(":packages:react-native:ReactAndroid:hermes-engine"))
+        substitute(module("com.facebook.react:hermes-engine")).using(project(":packages:react-native:ReactAndroid:hermes-engine"))
+    }
+}
+```
+
+You can now modify Android files in node_modules and build in debug mode to test them.
+
+## How to prebuild a patch
+
+Once you're satisfied with your patch, you will need to apply it to this fork and prebuild it.
+
+1. Clone the repo: `gh repo clone robingullo/react-native-tvos && cd react-native-tvos`.
+
+1. Run `yarn install`.
+
+1. Configure manual signing.
+    1. Install GnuPG CLI (https://www.gnupg.org/): `brew install gnupg`
+
+        Check: `gpg --version` should display the version
+
+    1. Create a secret key: `gpg --generate-key` (https://www.gnupg.org/documentation/howtos.html). Don't forget to store the passphrase, you will need it to build.
+
+        Check: `gpg -K` should show a `sec` key with 40 characters (uppercase letters and numbers)
+
+    1. Export keyring: `gpg --keyring secring.gpg --export-secret-keys > ~/.gnupg/secring.gpg`
+
+        Check: `ls ~/.gnupg/secring.gpg`
+
+    1. In `packages/react-native/ReactAndroid/gradle.properties`, add the `sec` key from `gpg -K` in the necessary fields.
+
+    1. In `~/.zshrc`, add `export GPG_TTY=$(tty)` then run `source ~/.zshrc` to apply changes (fixes `gpg: signing failed: Inappropriate ioctl for device` error when building, see this issue https://github.com/keybase/keybase-issues/issues/2798)
+
+1. Create a branch starting from the target tag (e.g. `git checkout v0.72.6-1`) and commit your patch (DO NOT COMMIT YOUR SIGNING KEY)
+
+1. Run `./gradlew publishAllToMavenTempLocal` to prebuild binary artifacts.
+
+    Check: `ls /tmp/maven-local/io/github/react-native-tvos` should contain two folders `hermes-android` and `react-android`. Each of these folders should look like this:
+
+    ```txt
+    0.72.6-1
+      react-android-0.72.6-1-debug-sources.jar
+      react-android-0.72.6-1-debug.aar
+      react-android-0.72.6-1-release-sources.jar
+      react-android-0.72.6-1-release.aar
+      react-android-0.72.6-1.pom
+      react-android-0.72.6-1.module
+    maven-metadata.xml
+    ```
+
+## How to use the patch in the app
+
+1. In your terminal, `cd` to the app directory.
+
+1. Copy binaries in the repo: `rm -rf patches/maven/io/github/react-native-tvos && cp -rf /tmp/maven-local/io/github/react-native-tvos patches/maven/io/github`
+
+    Check: folder `patches/maven/io/github/react-native-tvos` should contain two folders `hermes-android` and `react-android`
+
+1. In `build.gradle`, add the local maven repo
+
+    ```groovy
+    repositories {
+      ...
+      maven {
+            // Use local maven repository to get the patched version of react-native-tvos.
+            // IMPORTANT: it must appear BEFORE mavenCentral() to take precedence over the original package
+            //
+            // Patched binaries were generated from this fork and copied inside the project
+            // https://github.com/robingullo/react-native-tvos
+            // It works only because the original package is io.github.react-native-tvos:react-android (resp. hermes-android)
+            // and the maven repo has structure io/github/react-native-tvos/react-android (resp. hermes-android)
+          url uri("${project.getRootDir()}/../../../patches/maven") // project.getRootDir() is the `android` folder of TV package
+      }
+      mavenCentral()
+      ...
+    }
+    ```
+
 ## react-native-tvos
 
 Apple TV and Android TV support for React Native are maintained here and in the corresponding `react-native-tvos` NPM package, and not in the [core repo](https://github.com/facebook/react-native/).  This is a full fork of the main repository, with only the changes needed to support Apple TV and Android TV.
