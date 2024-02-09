@@ -74,12 +74,12 @@ end
 
 def release_tarball_url(version, build_type)
     if ENV["HERMES_ARTIFACT_FROM_MAVEN_LOCAL"] == "1"
-      return "file:///tmp/maven-local/io/github/react-native-tvos/react-native-artifacts/#{version}/react-native-artifacts-#{version}-hermes-ios-#{build_type.to_s}.tar.gz"
+      return "file:///tmp/maven-local/fr/tf1/react-native-tvos/react-native-artifacts/#{version}/react-native-artifacts-#{version}-hermes-ios-#{build_type.to_s}.tar.gz"
     end
     # React Native core URL
     #return "https://repo1.maven.org/maven2/com/facebook/react/react-native-artifacts/#{version}/react-native-artifacts-#{version}-hermes-ios-#{build_type.to_s}.tar.gz"
     # React Native TV URL
-    return "https://repo1.maven.org/maven2/io/github/react-native-tvos/react-native-artifacts/#{version}/react-native-artifacts-#{version}-hermes-ios-#{build_type.to_s}.tar.gz"
+    return "https://repo1.maven.org/maven2/fr/tf1/react-native-tvos/react-native-artifacts/#{version}/react-native-artifacts-#{version}-hermes-ios-#{build_type.to_s}.tar.gz"
 end
 
 def use_nightly_tarball(source, react_native_path, version)
