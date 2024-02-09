@@ -108,9 +108,9 @@ dependencies {
 
     // For the TV repo, the plugin does not set the version correctly, so we add the version
     // in gradle.properties for now
-    // We also use the fr.tf1.react-native-tvos group for the react-android and hermes-android dependencies
+    // We also use the io.github.react-native-tvos group for the react-android and hermes-android dependencies
 
-    implementation("fr.tf1.react-native-tvos:react-android")
+    implementation("io.github.react-native-tvos:react-android")
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
@@ -119,7 +119,7 @@ dependencies {
 
     debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}")
     if (hermesEnabled.toBoolean()) {
-        implementation("fr.tf1.react-native-tvos:hermes-android")
+        implementation("io.github.react-native-tvos:hermes-android")
     } else {
         implementation jscFlavor
     }

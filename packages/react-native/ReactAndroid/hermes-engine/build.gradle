@@ -16,7 +16,7 @@ plugins {
 
 // group = "com.facebook.react"
 // Group for the TV repo
-group = "fr.tf1.react-native-tvos"
+group = "io.github.react-native-tvos"
 
 version = parent.publishing_version
 def cmakeVersion = parent.cmake_version

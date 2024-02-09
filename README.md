@@ -21,10 +21,10 @@ In `android/settings.gradle`, add these lines:
 includeBuild('../node_modules/react-native') {
     dependencySubstitution {
         // Matches custom react-native-tvos dependency in app/build.gradle
-        substitute(module("fr.tf1.react-native-tvos:react-android")).using(project(":packages:react-native:ReactAndroid"))
+        substitute(module("io.github.react-native-tvos:react-android")).using(project(":packages:react-native:ReactAndroid"))
         substitute(module("com.facebook.react:react-native")).using(project(":packages:react-native:ReactAndroid"))
         // Matches custom react-native-tvos dependency in app/build.gradle
-        substitute(module("fr.tf1.react-native-tvos:hermes-android")).using(project(":packages:react-native:ReactAndroid:hermes-engine"))
+        substitute(module("io.github.react-native-tvos:hermes-android")).using(project(":packages:react-native:ReactAndroid:hermes-engine"))
         substitute(module("com.facebook.react:hermes-engine")).using(project(":packages:react-native:ReactAndroid:hermes-engine"))
     }
 }
@@ -59,9 +59,9 @@ Once you're satisfied with your patch, you will need to apply it to this fork an
 
 1. Create a branch starting from the target tag (e.g. `git checkout v0.72.6-1`) and commit your patch (DO NOT COMMIT YOUR SIGNING KEY)
 
-1. Run `node scripts/prepare-tv-release.js` to prebuild binary artifacts.
+1. Run `./gradlew publishAllToMavenTempLocal` to prebuild binary artifacts.
 
-    Check: `ls /tmp/maven-local/fr/tf1/react-native-tvos` should contain two folders `hermes-android` and `react-android`. Each of these folders should look like this:
+    Check: `ls /tmp/maven-local/io/github/react-native-tvos` should contain two folders `hermes-android` and `react-android`. Each of these folders should look like this:
 
     ```txt
     0.72.6-1
@@ -78,9 +78,9 @@ Once you're satisfied with your patch, you will need to apply it to this fork an
 
 1. In your terminal, `cd` to the app directory.
 
-1. Copy binaries in the repo: `rm -rf patches/maven/fr/tf1/react-native-tvos && cp -rf /tmp/maven-local/fr/tf1/react-native-tvos patches/maven/fr/tf1`
+1. Copy binaries in the repo: `rm -rf patches/maven/io/github/react-native-tvos && cp -rf /tmp/maven-local/io/github/react-native-tvos patches/maven/io/github`
 
-    Check: folder `patches/maven/fr/tf1/react-native-tvos` should contain two folders `hermes-android` and `react-android`
+    Check: folder `patches/maven/io/github/react-native-tvos` should contain two folders `hermes-android` and `react-android`
 
 1. In `build.gradle`, add the local maven repo
 
@@ -93,27 +93,14 @@ Once you're satisfied with your patch, you will need to apply it to this fork an
             //
             // Patched binaries were generated from this fork and copied inside the project
             // https://github.com/robingullo/react-native-tvos
-            // It works only because the original package is fr.tf1.react-native-tvos:react-android (resp. hermes-android)
-            // and the maven repo has structure fr/tf1/react-native-tvos/react-android (resp. hermes-android)
+            // It works only because the original package is io.github.react-native-tvos:react-android (resp. hermes-android)
+            // and the maven repo has structure io/github/react-native-tvos/react-android (resp. hermes-android)
           url uri("${project.getRootDir()}/../../../patches/maven") // project.getRootDir() is the `android` folder of TV package
       }
       mavenCentral()
       ...
     }
     ```
-
-1. In `app/build.gradle`, change the dependency to use the patched version
-
-```diff
-dependencies {
--  implementation("io.github.react-native-tvos:react-android")
-+  implementation("fr.tf1.react-native-tvos:react-android")
--  implementation("io.github.react-native-tvos:hermes-android")
-+  implementation("fr.tf1.react-native-tvos:hermes-android")
-}
-```
-
-1. In package.json, use this repo instead of react-native-tvos
 
 ## react-native-tvos
 
@@ -164,7 +151,7 @@ You should also install `yarn` globally, as it should be used instead of `npm` f
 ## Build changes
 
 - _Native layer for Apple TV_: React Native Xcode projects all now have Apple TV build targets, with names ending in the string '-tvOS'.
-- _Maven artifacts for Android TV_: In 0.71, the React Native Android prebuilt archives are published to Maven instead of being included in the NPM. We are following the same model, except that the Maven artifacts will be in group `fr.tf1.react-native-tvos` instead of `com.facebook.react`. The `@react-native/gradle-plugin` module has been upgraded so that the Android dependencies will be detected correctly during build.
+- _Maven artifacts for Android TV_: In 0.71, the React Native Android prebuilt archives are published to Maven instead of being included in the NPM. We are following the same model, except that the Maven artifacts will be in group `io.github.react-native-tvos` instead of `com.facebook.react`. The `@react-native/gradle-plugin` module has been upgraded so that the Android dependencies will be detected correctly during build.
 
 ## New project creation
 
